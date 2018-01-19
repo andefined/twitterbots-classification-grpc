@@ -36,8 +36,8 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
         self.model = read_csv(model)
         logging.info('Model: `%s` Loaded', model)
 
-        self.x = []
-        self.y = []
+        self.x = self.model.values[:, 1:]
+        self.y = self.model.values[:, 0]
 
         self.clf = RandomForestClassifier(n_jobs=-1, criterion='entropy', n_estimators=8,
                                           random_state=42, max_depth=5, min_samples_leaf=5)
@@ -46,8 +46,6 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
         '''
         Set x, y dimmensions and fit the model
         '''
-        self.x = self.model.values[:, 1:]
-        self.y = self.model.values[:, 0]
         self.clf.fit(self.x, self.y)
         logging.info('Forest Fitted')
     def Parse(self, request, context):
