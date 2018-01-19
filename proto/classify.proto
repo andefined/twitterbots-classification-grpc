@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+// Packge name
+package classify;
+
+// Service definition
+service Classify {
+    rpc Parse(UserFeatures) returns (UserClass) {}
+}
+
+// Request message
+message UserFeatures {
+    string name = 1;
+}
+
+// Response message
+message UserClass {
+    string result = 2;
+}
