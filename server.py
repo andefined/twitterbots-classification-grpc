@@ -35,7 +35,7 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
     def __init__(self, model):
         self.model = read_csv(model)
         logging.info('Model: `%s` Loaded', model)
-        
+
         self.x = []
         self.y = []
 
@@ -54,7 +54,12 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
         '''
         Run the classifier (random forest)
         '''
-        return classify_pb2.UserClass(result=self.clf.predict(request))
+        predict = self.clf.predict(request)
+        score = self.clf.score(request)
+
+        logging.info('USER: %s | CLASS: %s | SCORE: %.4f',
+                     request, predict, score)
+        return classify_pb2.UserClass(result=[predict, score])
 
 
 def serve(host, port, model):
@@ -64,7 +69,7 @@ def serve(host, port, model):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     classify_pb2_grpc.add_ClassifyServicer_to_server(Classify(model), server)
     server.add_insecure_port('{}:{}'.format(host, port))
-    
+
     server.start()
 
     logging.info('GRPC Classification Server Listening on %s:%d', host, port)
