@@ -15,6 +15,7 @@ import argparse
 from concurrent import futures
 
 import grpc
+import numpy as np
 
 from pandas import read_csv
 from sklearn.ensemble import RandomForestClassifier
@@ -42,22 +43,28 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
         self.clf = RandomForestClassifier(n_jobs=-1, criterion='entropy', n_estimators=8,
                                           random_state=42, max_depth=5, min_samples_leaf=5)
         self.fit()
+
     def fit(self):
         '''
         Set x, y dimmensions and fit the model
         '''
         self.clf.fit(self.x, self.y)
         logging.info('Forest Fitted')
-    def Parse(self, request, context):
+
+    def Parse(self, data, context):
         '''
         Run the classifier (random forest)
         '''
-        predict = self.clf.predict(request)
-        score = self.clf.score(request)
+        features = [data.followers, data.friends,
+                    data.statuses, data.favorites, data.lists]
+        logging.info('Features: %s', features)
 
-        logging.info('USER: %s | CLASS: %s | SCORE: %.4f',
-                     request, predict, score)
-        return classify_pb2.UserClass(result=[predict, score])
+        predict = self.clf.predict([features])
+        proba = self.clf.predict_proba([features])
+
+        logging.info('Prediction -- CLASS: %s | SCORE: %s', predict[0], np.max(proba))
+
+        return classify_pb2.UserClass(label=predict[0], score=np.max(proba))
 
 
 def serve(host, port, model):

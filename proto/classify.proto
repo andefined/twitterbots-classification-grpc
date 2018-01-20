@@ -10,10 +10,15 @@ service Classify {
 
 // Request message
 message UserFeatures {
-    string name = 1;
+    int32 followers = 1;
+    int32 friends = 2;
+    int32 statuses = 3;
+    int32 favorites = 4;
+    int32 lists = 5;
 }
 
 // Response message
 message UserClass {
-    string result = 2;
+    string label = 1;
+    float score = 2;
 }
