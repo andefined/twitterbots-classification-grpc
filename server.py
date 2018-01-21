@@ -3,7 +3,7 @@ GRPC Classification Server
 '''
 #!/usr/bin/env python
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __licence__ = 'MIT'
 __author__ = 'Dimitris Papaevagelou'
 __email__ = 'dimitris.papaevagelou@andefined.com'
