@@ -39,6 +39,7 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
 
         self.x = self.model.values[:, 1:]
         self.y = self.model.values[:, 0]
+        self.classes = []
 
         self.clf = RandomForestClassifier(n_jobs=-1, criterion='entropy', n_estimators=8,
                                           random_state=42, max_depth=5, min_samples_leaf=5)
@@ -48,7 +49,8 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
         '''
         Set x, y dimmensions and fit the model
         '''
-        self.clf.fit(self.x, self.y)
+        fit = self.clf.fit(self.x, self.y)
+        self.classes = fit.classes_
         logging.info('Forest Fitted')
 
     def Parse(self, data, context):
@@ -59,12 +61,12 @@ class Classify(classify_pb2_grpc.ClassifyServicer):
                     data.statuses, data.favorites, data.lists]
         logging.info('Features: %s', features)
 
-        predict = self.clf.predict([features])
         proba = self.clf.predict_proba([features])
+        predict = self.classes[np.argmax(proba)]
 
-        logging.info('Prediction -- CLASS: %s | SCORE: %s', predict[0], np.max(proba))
+        logging.info('Prediction -- CLASS: %s | SCORE: %s', predict, np.max(proba))
 
-        return classify_pb2.UserClass(label=predict[0], score=np.max(proba))
+        return classify_pb2.UserClass(label=predict, score=np.max(proba))
 
 
 def serve(host, port, model):
