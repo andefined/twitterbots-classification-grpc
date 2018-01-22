@@ -1,7 +1,7 @@
-###### twitter-classification-grpc
+###### twitterbots-classification-grpc
 
-# GRPC Classification Server
+# Political Influence on Twitter (gRPC Classification Server)
 
-This is the classification engine behind [Political Influence on Twitter](https://twitterbots.plagiari.sm).
+This is the classification engine for [Political Influence on Twitter](https://twitterbots.plagiari.sm).
 
  
